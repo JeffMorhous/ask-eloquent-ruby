@@ -9,9 +9,20 @@ const AskQuestion: React.FC<AskQuestionProps> = () => {
     const [response, setResponse] = React.useState("");
 
     const handleSubmit = async () => {
-        // Handle the question submission here.
-        // For now, we just set the response to the submitted question.
-        setResponse(question);
+        try {
+            const result = await fetch("/questions/ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": document.getElementsByName("csrf-token")[0].getAttribute("content"),
+                },
+                body: JSON.stringify({ question }),
+            });
+            const data = await result.json();
+            setResponse(data.response);
+        } catch (error) {
+            console.error("Error:", error);
+        }
     };
 
     return (

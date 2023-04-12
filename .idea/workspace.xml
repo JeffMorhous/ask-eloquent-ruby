@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="79ebd39d-c5d9-4eff-933b-786d14e0b74a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/javascript/components/AskQuestion.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/controllers/questions_controller.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/javascript/components/application.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/javascript/components/application.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views/components/index.html.erb" beforeDir="false" afterPath="$PROJECT_DIR$/app/views/components/index.html.erb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/javascript/components/AskQuestion.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/javascript/components/AskQuestion.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/routes.rb" beforeDir="false" afterPath="$PROJECT_DIR$/config/routes.rb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +123,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1681313265696</updated>
-      <workItem from="1681313267747" duration="3686000" />
+      <workItem from="1681313267747" duration="4012000" />
     </task>
     <servers />
   </component>
