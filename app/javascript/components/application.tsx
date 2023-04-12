@@ -1,12 +1,17 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import AskQuestion from "./AskQuestion";
 
 interface AppProps {
     arg: string;
 }
 
 const App = ({ arg }: AppProps) => {
-    return <div>{`Hello, ${arg}!`}</div>;
+    return(
+        <div>
+            <AskQuestion />
+        </div>
+    );
 };
 
 document.addEventListener("DOMContentLoaded", () => {
