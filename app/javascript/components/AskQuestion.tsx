@@ -26,14 +26,30 @@ const AskQuestion: React.FC<AskQuestionProps> = () => {
     };
 
     return (
-        <div>
-      <textarea
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Ask a question..."
-      />
-            <button onClick={handleSubmit}>Submit</button>
-            {response && <div>Response: {response}</div>}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", fontFamily: "Arial, sans-serif" }}>
+            <h1>Ask a question</h1>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "50%" }}>
+                <textarea
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ask a question..."
+                    style={{ width: "100%", height: "150px", fontSize: "18px", padding: "10px", borderRadius: "4px", border: "1px solid #ccc" }}
+                />
+                <button onClick={handleSubmit} style={{
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    borderRadius: "4px",
+                    border: "none",
+                    padding: "10px 20px",
+                    fontSize: "18px",
+                    marginTop: "10px",
+                    cursor: "pointer",
+                    transition: "0.3s",
+                }}>
+                    Submit
+                </button>
+                {response && <div style={{ marginTop: "20px" }}>Response: {response}</div>}
+            </div>
         </div>
     );
 };
