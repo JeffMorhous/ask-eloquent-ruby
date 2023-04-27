@@ -10,18 +10,23 @@ class QuestionService
     @openai_api_client = OpenAIApiClient.new
   end
 
-  def answer(question)
-    puts "in answer_question"
+  def answer(question_text)
+    question_text += '?' unless question_text[-1] == '?'
+
+    question = Question.find_or_create_by(question_text: question_text)
+    return "Sorry, there was a problem saving your question" unless question.persisted?
+    return question.answer if question.answer.present?
 
     begin
       # Load the data from the CSV files
       document_embeddings = load_embeddings('files/eloquent-ruby.pdf.embeddings.csv')
       df = CSV.read('files/eloquent-ruby.pdf.pages.csv', headers: true)
 
-      # Call the OpenAI API to get the answer and context
-      answer, context = answer_query_with_context(question, df, document_embeddings) #Context will be saved with question in DB
+      answer, context = answer_query_with_context(question_text, df, document_embeddings) #Context will be saved with question in DB
+      question.context = context
+      question.answer = answer
+      question.save
 
-      # Return the answer
       return answer
     rescue OpenAIApiClient::ApiError => e
       return "Sorry, there was a problem getting data from Open AI"
