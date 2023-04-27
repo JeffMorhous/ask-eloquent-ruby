@@ -1,17 +1,16 @@
 require 'httparty'
 require_relative '../lib/clients/open_ai_api_client'
 
-class QuestionAnswerer
+class QuestionService
 
   MAX_SECTION_LEN = 500
   SEPARATOR = "\n* "
 
-  def initialize(question)
-    @question = question
+  def initialize
     @openai_api_client = OpenAIApiClient.new
   end
 
-  def answer_question
+  def answer(question)
     puts "in answer_question"
 
     # Load the data from the CSV files
@@ -19,7 +18,7 @@ class QuestionAnswerer
     df = CSV.read('files/eloquent-ruby.pdf.pages.csv', headers: true)
 
     # Call the OpenAI API to get the answer and context
-    answer, context = answer_query_with_context(@question, df, document_embeddings) #Context will be saved with question in DB
+    answer, context = answer_query_with_context(question, df, document_embeddings) #Context will be saved with question in DB
 
     # Return the answer
     answer

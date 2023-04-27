@@ -1,8 +1,13 @@
 class QuestionsController < ApplicationController
   def ask
     question = params[:question] # TODO: Strong Params
-    question_answerer = QuestionAnswerer.new(question)
-    answer = question_answerer.answer_question
+    answer = question_service.answer(question)
     render json: { response: answer }
+  end
+
+  private
+
+  def question_service
+    @question_service ||= QuestionService.new
   end
 end
