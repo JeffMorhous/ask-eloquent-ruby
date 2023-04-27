@@ -19,10 +19,9 @@ class QuestionService
 
     begin
       # Load the data from the CSV files
-      document_embeddings = load_embeddings('files/eloquent-ruby.pdf.embeddings.csv')
       df = CSV.read('files/eloquent-ruby.pdf.pages.csv', headers: true)
 
-      answer, context = answer_query_with_context(question_text, df, document_embeddings) #Context will be saved with question in DB
+      answer, context = answer_query_with_context(question_text, df, document_embeddings)
       question.context = context
       question.answer = answer
       question.save
@@ -35,10 +34,11 @@ class QuestionService
 
   private
 
-  def load_embeddings(file_path)
-    # This method takes probably the longest of anything
-    puts "in load_embeddings"
+  def document_embeddings
+    @document_embeddings ||= load_embeddings('files/eloquent-ruby.pdf.embeddings.csv')
+  end
 
+  def load_embeddings(file_path)
     embeddings = {}
 
     CSV.foreach(file_path, headers: true) do |row|
@@ -52,8 +52,6 @@ class QuestionService
   end
 
   def answer_query_with_context(query, df, document_embeddings)
-    puts "in answer_query_with_context"
-
     prompt, context = construct_prompt(query, document_embeddings, df)
 
     # Make an API call to OpenAI with the constructed prompt
@@ -63,8 +61,6 @@ class QuestionService
   end
 
   def construct_prompt(question, context_embeddings, df)
-    puts "in construct_prompt"
-
     most_relevant_document_sections = order_document_sections_by_query_similarity(question, context_embeddings)
 
     chosen_sections = []
@@ -76,8 +72,7 @@ class QuestionService
 
       chosen_sections_len += document_section["tokens"].to_i + SEPARATOR.length
       if chosen_sections_len > MAX_SECTION_LEN
-        space_left = MAX_SECTION_LEN - chosen_sections_len - SEPARATOR.length
-        chosen_sections.append(SEPARATOR + document_section["content"][0..space_left])
+        chosen_sections.append(SEPARATOR + document_section["content"])
         chosen_sections_indexes.append(section_index.to_s)
         break
       end
@@ -87,24 +82,25 @@ class QuestionService
     end
 
     header =  "Russ Olsen is a Ruby programmer and the author of the book Eloquent Ruby. These are questions and answers by him. " \
-              "Please keep your answers to three sentences maximum, and speak in complete sentences. Do not repeat the question. " \
+              "Speak in complete sentences. Do not repeat the question. " \
+              "When asked a question about how to program something, give answers as Russ Olsen would in Eloquent Ruby."
               "Answer questions knowing that there are often many ways to do things in Ruby, and choose the most conventional way. "
               "Context that may be useful, pulled from Eloquent Ruby:\n"
 
-    predefined_questions = [
-      "\n\n\nQ: How do I write code that looks like Ruby?\n\nA: More than anything else, code that looks like Ruby looks readable. This means that although Ruby programmers generally follow the coding conventions",
-    # Add the rest of the predefined questions here, similar to the one above
-    ]
+    predefined_questions =
+      "\n\nQ: How do I write code that looks like Ruby?\n\nA: More than anything else, code that looks like Ruby looks readable. " \
+      "This means that although Ruby programmers generally follow the coding conventions" \
+      "\nQ: What is the difference between unless and if?\n\nA: With unless, the body of the statement is executed only if the " \
+      "condition is false. The unless-based version of title= has two advantages: First, it is exactly one token (the not) shorter " \
+      "than the if not rendition. Second—and much more important— is that once you get used to it, the unless-based decision takes " \
+      "less mental energy to read and understand."
 
-    prompt = header + chosen_sections.join + predefined_questions.join + "\n\n\nQ: " + question + "\n\nA: "
+    prompt = header + chosen_sections.join + predefined_questions + "\n\n\nQ: " + question + "\n\nA: "
     [prompt, chosen_sections.join]
   end
 
   def order_document_sections_by_query_similarity(query, document_embeddings)
-    puts "in order_document_sections_by_query_similarity"
-
     query_embedding = @openai_api_client.fetch_embeddings(query)
-
 
     document_similarities = document_embeddings.map do |doc_index, doc_embedding|
       [vector_similarity(query_embedding, doc_embedding), doc_index]
@@ -115,6 +111,12 @@ class QuestionService
   end
 
   def vector_similarity(x, y)
-    x.zip(y).map { |xi, yi| xi * yi }.sum
+    dot_product = 0
+    x.zip(y).each do |v1i, v2i|
+      dot_product += v1i * v2i
+    end
+    a = x.map { |n| n ** 2 }.reduce(:+)
+    b = y.map { |n| n ** 2 }.reduce(:+)
+    return dot_product / (Math.sqrt(a) * Math.sqrt(b))
   end
 end
