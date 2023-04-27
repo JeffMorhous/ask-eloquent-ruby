@@ -13,15 +13,19 @@ class QuestionService
   def answer(question)
     puts "in answer_question"
 
-    # Load the data from the CSV files
-    document_embeddings = load_embeddings('files/eloquent-ruby.pdf.embeddings.csv')
-    df = CSV.read('files/eloquent-ruby.pdf.pages.csv', headers: true)
+    begin
+      # Load the data from the CSV files
+      document_embeddings = load_embeddings('files/eloquent-ruby.pdf.embeddings.csv')
+      df = CSV.read('files/eloquent-ruby.pdf.pages.csv', headers: true)
 
-    # Call the OpenAI API to get the answer and context
-    answer, context = answer_query_with_context(question, df, document_embeddings) #Context will be saved with question in DB
+      # Call the OpenAI API to get the answer and context
+      answer, context = answer_query_with_context(question, df, document_embeddings) #Context will be saved with question in DB
 
-    # Return the answer
-    answer
+      # Return the answer
+      return answer
+    rescue OpenAIApiClient::ApiError => e
+      return "Sorry, there was a problem getting data from Open AI"
+    end
   end
 
   private
@@ -92,8 +96,11 @@ class QuestionService
 
   def order_document_sections_by_query_similarity(query, document_embeddings)
     puts "in order_document_sections_by_query_similarity"
+    begin
+      query_embedding = @openai_api_client.fetch_embeddings(query)
+    rescue OpenAIApiClient::ApiError => e
 
-    query_embedding = @openai_api_client.fetch_embeddings(query)
+    end
 
     document_similarities = document_embeddings.map do |doc_index, doc_embedding|
       [vector_similarity(query_embedding, doc_embedding), doc_index]

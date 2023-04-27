@@ -8,9 +8,9 @@ class OpenAIApiClient
 
   OPEN_AI_API_KEY = ENV["OPEN_AI_API_KEY"]
 
-  def fetch_completions(prompt)
-    puts "in fetch_completions_from_open_ai"
+  class ApiError < StandardError; end
 
+  def fetch_completions(prompt)
     # Prepare the API call headers
     headers = {
       "Content-Type" => "application/json",
@@ -31,8 +31,7 @@ class OpenAIApiClient
       headers: headers,
       body: body
     )
-
-    puts response
+    raise ApiError, "Error fetching completions: #{response['error']['message']}" if response["error"].present?
 
     # Return the text response
     response['choices'][0]['text'].strip
@@ -53,6 +52,8 @@ class OpenAIApiClient
       headers: headers,
       body: body
     )
+
+    raise ApiError, "Error fetching completions: #{response['error']['message']}" if response["error"].present?
 
     response["data"][0]["embedding"]
   end
