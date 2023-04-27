@@ -31,6 +31,7 @@ class QuestionService
   private
 
   def load_embeddings(file_path)
+    # This method takes probably the longest of anything
     puts "in load_embeddings"
 
     embeddings = {}
@@ -96,11 +97,9 @@ class QuestionService
 
   def order_document_sections_by_query_similarity(query, document_embeddings)
     puts "in order_document_sections_by_query_similarity"
-    begin
-      query_embedding = @openai_api_client.fetch_embeddings(query)
-    rescue OpenAIApiClient::ApiError => e
 
-    end
+    query_embedding = @openai_api_client.fetch_embeddings(query)
+
 
     document_similarities = document_embeddings.map do |doc_index, doc_embedding|
       [vector_similarity(query_embedding, doc_embedding), doc_index]

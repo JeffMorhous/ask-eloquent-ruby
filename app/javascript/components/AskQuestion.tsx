@@ -10,6 +10,7 @@ const AskQuestion: React.FC<AskQuestionProps> = () => {
 
     const handleSubmit = async () => {
         try {
+            setResponse("Thinking...");
             const result = await fetch("/questions/ask", {
                 method: "POST",
                 headers: {
@@ -22,12 +23,13 @@ const AskQuestion: React.FC<AskQuestionProps> = () => {
             setResponse(data.response);
         } catch (error) {
             console.error("Error:", error);
+            setResponse("Sorry, there was a problem");
         }
     };
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", fontFamily: "Arial, sans-serif" }}>
-            <h1>Ask a question</h1>
+            <h1>Ask a question about Ruby Programming</h1>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "50%" }}>
                 <textarea
                     value={question}
@@ -48,7 +50,7 @@ const AskQuestion: React.FC<AskQuestionProps> = () => {
                 }}>
                     Submit
                 </button>
-                {response && <div style={{ marginTop: "20px" }}>Response: {response}</div>}
+                {response && <div style={{ marginTop: "20px" }}>{response}</div>}
             </div>
         </div>
     );
