@@ -17,7 +17,7 @@ const AskQuestion: React.FC<AskQuestionProps> = () => {
                     "Content-Type": "application/json",
                     "X-CSRF-Token": document.getElementsByName("csrf-token")[0].getAttribute("content"),
                 },
-                body: JSON.stringify({ question }),
+                body: JSON.stringify({ question: question }),
             });
             const data = await result.json();
             setResponse(data.response);
