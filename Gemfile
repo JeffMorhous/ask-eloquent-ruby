@@ -51,7 +51,7 @@ gem "bootsnap", require: false
 # Used for format_pdf_as_embeddings.rb
 gem "pdf-reader"
 gem "words_counted"
-gem "pandas"
+# gem "pandas"
 gem "httparty"
 gem "csv"
 
