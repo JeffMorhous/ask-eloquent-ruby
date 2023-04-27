@@ -1,20 +1,14 @@
 require 'httparty'
+require_relative '../lib/clients/open_ai_api_client'
 
 class QuestionAnswerer
 
   MAX_SECTION_LEN = 500
   SEPARATOR = "\n* "
 
-  COMPLETIONS_API_PARAMS = {
-    temperature: 0.0,
-    max_tokens: 150,
-    model: 'text-davinci-003'
-  }.freeze
-
-  OPEN_AI_API_KEY = ENV["OPEN_AI_API_KEY"]
-
   def initialize(question)
     @question = question
+    @openai_api_client = OpenAIApiClient.new
   end
 
   def answer_question
@@ -54,7 +48,7 @@ class QuestionAnswerer
     prompt, context = construct_prompt(query, document_embeddings, df)
 
     # Make an API call to OpenAI with the constructed prompt
-    response = fetch_completions_from_open_ai(prompt)
+    response = @openai_api_client.fetch_completions(prompt)
 
     return [response, context]
   end
@@ -100,7 +94,7 @@ class QuestionAnswerer
   def order_document_sections_by_query_similarity(query, document_embeddings)
     puts "in order_document_sections_by_query_similarity"
 
-    query_embedding = get_query_embedding(query)
+    query_embedding = @openai_api_client.fetch_embeddings(query)
 
     document_similarities = document_embeddings.map do |doc_index, doc_embedding|
       [vector_similarity(query_embedding, doc_embedding), doc_index]
@@ -110,62 +104,7 @@ class QuestionAnswerer
     document_similarities.sort { |a, b| b[0] <=> a[0] }
   end
 
-  def get_query_embedding(text)
-    puts "in get_query_embedding"
-
-    headers = {
-      "Content-Type" => "application/json",
-      "Authorization" => "Bearer #{OPEN_AI_API_KEY}"
-    }
-    body = {
-      "model" => "text-search-curie-doc-001",
-      "input" => text
-    }.to_json
-
-    response = HTTParty.post(
-      "https://api.openai.com/v1/embeddings",
-      headers: headers,
-      body: body
-    )
-
-    puts response
-
-    response["data"][0]["embedding"]
-  end
-
   def vector_similarity(x, y)
-    puts "in vector_similarity"
-
     x.zip(y).map { |xi, yi| xi * yi }.sum
-  end
-
-  def fetch_completions_from_open_ai(prompt)
-    puts "in fetch_completions_from_open_ai"
-
-    # Prepare the API call headers
-    headers = {
-      "Content-Type" => "application/json",
-      "Authorization" => "Bearer #{OPEN_AI_API_KEY}"
-    }
-    debugger
-    # Prepare the API call body
-    body = {
-      "model" => COMPLETIONS_API_PARAMS[:model],
-      "prompt" => prompt,
-      "max_tokens" => COMPLETIONS_API_PARAMS[:max_tokens],
-      "temperature" => COMPLETIONS_API_PARAMS[:temperature]
-    }.to_json
-
-    # Make the API call
-    response = HTTParty.post(
-      "https://api.openai.com/v1/completions",
-      headers: headers,
-      body: body
-    )
-
-    puts response
-
-    # Return the text response
-    response['choices'][0]['text'].strip
   end
 end
